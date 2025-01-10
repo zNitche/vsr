@@ -6,14 +6,22 @@ class Server:
     def __init__(self,
                  address: str = "0.0.0.0",
                  port: int = 8989,
-                 poll_interval: float = 0.5,
-                 timeout: int = 5):
+                 poll_interval: float = 0.1,
+                 timeout: int = 5,
+                 broadcast: bool = False,
+                 broadcaster: None = None):
 
         self.address = address
         self.port = port
 
         self.timeout = timeout
         self.poll_interval = poll_interval
+
+        # temp solution
+        self.broadcast = broadcast
+        self.broadcaster: Server = broadcaster
+
+        self.broadcast_buff = b""
 
         self.__socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.__selector = selectors.PollSelector
@@ -31,19 +39,38 @@ class Server:
 
     def __handle_request(self, conn: socket.socket, addr: str):
         try:
-            while True:
-                data = conn.recv(4056)
+            if not self.broadcast:
+                while True:
+                    # 256kB
+                    data = conn.recv(262144)
 
-                if not data:
-                    break
+                    if not data:
+                        break
 
-                print(f"got data: {data}")
+                    # print(f"got data: {len(data)}")
+                    self.broadcast_buff = data
+
+            else:
+                prev_buff = b""
+
+                while True:
+                    buff = self.broadcaster.broadcast_buff
+
+                    if prev_buff != buff:
+
+                        conn.sendall(buff)
+                        prev_buff = buff
+
+                        print(f"send data: {len(buff)}")
 
         except Exception as e:
-            print(e)
             print(f"error while processing connection, addr: {addr}")
+            print(e)
 
         finally:
+            if not self.broadcast:
+                self.broadcast_buff = b""
+
             conn.close()
             print(f"closed connection with: {addr}")
 
