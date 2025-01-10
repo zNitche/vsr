@@ -1,6 +1,9 @@
 import socket
 import selectors
 
+#TMP
+from vsr.html.response import Response
+
 
 class Server:
     def __init__(self,
@@ -53,12 +56,21 @@ class Server:
             else:
                 prev_buff = b""
 
+                response = Response()
+                response.add_header('Content-Type', 'multipart/x-mixed-replace; boundary=FRAME')
+
+                conn.sendall(f"{response.get_headers_string()}\r\n\r\n".encode())
+                print(response.get_response_string())
+
                 while True:
                     buff = self.broadcaster.broadcast_buff
 
-                    if prev_buff != buff:
+                    if prev_buff != buff and len(buff) > 0:
+                        res = (b'--FRAME\r\nContent-Type: image/jpeg\r\n' + f"Content-Length: {len(buff)}\r\n\r\n".encode() + buff + b'\r\n')
 
-                        conn.sendall(buff)
+                        print(res)
+
+                        conn.sendall(res)
                         prev_buff = buff
 
                         print(f"send data: {len(buff)}")
