@@ -2,6 +2,7 @@ import socket
 import selectors
 
 #TMP
+from vsr.html.consts import HTTPConsts
 from vsr.html.response import Response
 
 
@@ -44,8 +45,8 @@ class Server:
         try:
             if not self.broadcast:
                 while True:
-                    # 256kB
-                    data = conn.recv(262144)
+                    # 128kB
+                    data = conn.recv(131072)
 
                     if not data:
                         break
@@ -57,20 +58,24 @@ class Server:
                 prev_buff = b""
 
                 response = Response()
-                response.add_header('Content-Type', 'multipart/x-mixed-replace; boundary=FRAME')
+                response.add_header(HTTPConsts.CONTENT_TYPE,
+                                    HTTPConsts.CONTENT_TYPE_MULTIPART_MIXED_REPLACE.format(boundary="frame"))
 
-                conn.sendall(f"{response.get_headers_string()}\r\n\r\n".encode())
-                print(response.get_response_string())
+                header_str = response.get_headers_string(include_content_length=False)
+                conn.sendall(header_str.encode())
 
                 while True:
                     buff = self.broadcaster.broadcast_buff
 
                     if prev_buff != buff and len(buff) > 0:
-                        res = (b'--FRAME\r\nContent-Type: image/jpeg\r\n' + f"Content-Length: {len(buff)}\r\n\r\n".encode() + buff + b'\r\n')
+                        res = Response(content_type=HTTPConsts.CONTENT_JPEG, payload=buff)
 
-                        print(res)
+                        res_buff = res.get_response_string(include_html_in_header=False, terminate=True)
+                        res_buff = b"--frame\r\n" + res_buff
 
-                        conn.sendall(res)
+                        # print(res_buff)
+
+                        conn.sendall(res_buff)
                         prev_buff = buff
 
                         print(f"send data: {len(buff)}")
