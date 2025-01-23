@@ -1,4 +1,4 @@
-from vsr.html.consts import HTTPConsts
+from vsr.http.consts import HTTPConsts
 
 
 class Response:
@@ -15,9 +15,9 @@ class Response:
         return len(self.payload) if self.payload else 0
 
     def get_headers_string(self,
-                           start_with_html: bool = True,
+                           start_with_http: bool = True,
                            include_content_length: bool = True) -> str:
-        header_rows = [f"HTTP/1.0 {self.status_code}"] if start_with_html else []
+        header_rows = [f"HTTP/1.0 {self.status_code}"] if start_with_http else []
 
         if include_content_length:
             self.add_header(HTTPConsts.CONTENT_LENGTH, self.get_content_length())
@@ -46,9 +46,9 @@ class Response:
         return self.payload if self.payload else ""
 
     def get_response_string(self,
-                            include_html_in_header: bool = True,
+                            include_http_in_header: bool = True,
                             terminate: bool = False) -> str | bytes:
-        headers = self.get_headers_string(start_with_html=include_html_in_header)
+        headers = self.get_headers_string(start_with_http=include_http_in_header)
         body = self.get_body()
 
         if type(body) == bytes:

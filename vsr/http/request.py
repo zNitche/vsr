@@ -1,7 +1,7 @@
 import socket
 import json
-from vsr.html import utils
-from vsr.html.consts import HTTPConsts
+from vsr.http import utils
+from vsr.http.consts import HTTPConsts
 
 
 class Request:
