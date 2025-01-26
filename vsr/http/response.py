@@ -15,9 +15,9 @@ class Response:
         return len(self.payload) if self.payload else 0
 
     def get_headers_string(self,
-                           start_with_http: bool = True,
+                           include_http_in_header: bool = True,
                            include_content_length: bool = True) -> str:
-        header_rows = [f"HTTP/1.0 {self.status_code}"] if start_with_http else []
+        header_rows = [f"HTTP/1.0 {self.status_code}"] if include_http_in_header else []
 
         if include_content_length:
             self.add_header(HTTPConsts.CONTENT_LENGTH, self.get_content_length())
@@ -48,15 +48,11 @@ class Response:
     def get_response_string(self,
                             include_http_in_header: bool = True,
                             terminate: bool = False) -> str | bytes:
-        headers = self.get_headers_string(start_with_http=include_http_in_header)
+
+        headers = self.get_headers_string(include_http_in_header=include_http_in_header)
         body = self.get_body()
 
-        if type(body) == bytes:
-            s = headers.encode() + body
-            postfix = b"\r\n"
+        response_string = headers.encode() + body if type(body) == bytes else f"{headers}{body}"
+        suffix = b"\r\n" if type(body) == bytes else "\r\n"
 
-        else:
-            s = f"{headers}{body}"
-            postfix = "\r\n"
-
-        return s if not terminate else s + postfix
+        return response_string if not terminate else response_string + suffix
