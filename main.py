@@ -1,4 +1,4 @@
-from vsr import Server
+from vsr.server import Server
 import threading
 
 
