@@ -1,18 +1,16 @@
-from vsr.server import Server
-import threading
+from vsr import Relay, Camera
 
 
 def main():
-    server = Server(port=8989)
-    replay_server = Server(port=9000, broadcaster=server, broadcast=True)
+    relay = Relay(port=8989)
 
     try:
-        rst = threading.Thread(target=replay_server.run)
+        cam1 = Camera(name="cam_1", address="127.0.0.1")
+        relay.add_camera(cam1)
 
-        rst.start()
-        server.run()
+        relay.run()
     except KeyboardInterrupt:
-        server.stop()
+        relay.stop()
 
 
 if __name__ == '__main__':
