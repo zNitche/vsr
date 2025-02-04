@@ -2,7 +2,6 @@ import socket
 import selectors
 import threading
 from vsr import Camera
-from vsr.core.modules.stream_handler import StreamHandler
 
 
 class Broadcaster:

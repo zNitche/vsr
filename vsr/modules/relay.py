@@ -1,8 +1,8 @@
 import socket
 import selectors
 import threading
-from vsr import Camera
-from vsr.core.modules.stream_handler import StreamHandler
+from vsr.modules.camera import Camera
+from vsr.core.stream_handler import StreamHandler
 
 
 class Relay:

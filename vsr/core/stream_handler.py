@@ -2,7 +2,7 @@ import socket
 import threading
 import selectors
 import time
-from vsr.core.camera import Camera
+from vsr.modules.camera import Camera
 
 
 class StreamHandler:
