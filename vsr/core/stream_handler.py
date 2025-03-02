@@ -3,6 +3,7 @@ import threading
 import selectors
 import time
 from vsr.modules.camera import Camera
+from vsr.logger import Logger
 
 
 class StreamHandler:
@@ -24,7 +25,10 @@ class StreamHandler:
 
         self.requested_shutdown = False
 
+        self.__logger = Logger.from_context(f"relay_logger.stream_handler_{self.__thread.native_id}")
+
     def process(self):
+        self.__logger.info("init")
         self.__connection_loop()
 
         try:

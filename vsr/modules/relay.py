@@ -3,6 +3,7 @@ import selectors
 import threading
 from vsr.modules.camera import Camera
 from vsr.core.stream_handler import StreamHandler
+from vsr.logger import Logger
 
 
 class Relay:
@@ -26,6 +27,8 @@ class Relay:
         self.__cameras: list[Camera] = []
         self.__camera_threads: list[threading.Thread] = []
 
+        self.__logger = Logger(logger_name="relay_logger").get_logger()
+
     def __setup_socket(self):
         self.__socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.__socket.settimeout(self.timeout)
@@ -33,7 +36,7 @@ class Relay:
         self.__socket.bind((self.address, self.port))
         self.__socket.listen()
 
-        print(f"Server listening on {self.address}:{self.port}")
+        self.__logger.info(f"Server listening on {self.address}:{self.port}")
 
     def add_camera(self, camera: Camera):
         if camera.name in [cam.name for cam in self.__cameras]:
@@ -61,13 +64,15 @@ class Relay:
             stream_handler.process()
 
         except Exception as e:
-            print(f"error while processing connection, addr: {addr}, thread: {cur_thread.name}: {str(e)}")
+            self.__logger.exception(f"error while processing connection,"
+                                    f" addr: {addr}, thread: {cur_thread.name}")
 
         finally:
             conn.close()
 
             self.__camera_threads.remove(cur_thread)
-            print(f"closed connection with: {addr}, thread: {cur_thread.name} / {cur_thread.native_id}")
+            self.__logger.info(f"closed connection with: {addr},"
+                               f" thread: {cur_thread.name} / {cur_thread.native_id}")
 
     def __mainloop(self):
         with self.__selector() as selector:
@@ -79,16 +84,16 @@ class Relay:
                 if ready:
                     try:
                         conn, addr = self.__socket.accept()
-                        print(f"connection from {addr}")
+                        self.__logger.info(f"connection from {addr}")
 
                         thread = threading.Thread(target=self.__handle_request, args=(conn, addr))
-                        print(f"starting request handler: {thread.name}")
+                        self.__logger.info(f"starting request handler: {thread.name}")
 
                         self.__camera_threads.append(thread)
                         thread.start()
 
                     except Exception as e:
-                        print(f"error while handling connection: {str(e)}")
+                        self.__logger.exception("error while handling connection")
 
     def run(self):
         self.__setup_socket()
@@ -103,4 +108,4 @@ class Relay:
         for thread in self.__camera_threads:
             thread.join()
 
-        print(f"server has been stopped successfully")
+        self.__logger.info(f"server has been stopped successfully")

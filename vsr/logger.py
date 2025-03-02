@@ -22,6 +22,13 @@ class Logger:
 
         self.__setup()
 
+    def get_logger(self):
+        return self.__logger
+
+    @staticmethod
+    def from_context(logger_name: str):
+        return logging.getLogger(logger_name)
+
     def __set_logs_path(self, filename: str | None, path: str | None) -> str | None:
         if filename is None or path is None:
             return None
@@ -67,18 +74,3 @@ class Logger:
         )
 
         return formatter
-
-    def exception(self, message: str):
-        self.__logger.exception(message)
-
-    def error(self, message: str):
-        self.__logger.error(message)
-
-    def info(self, message: str):
-        self.__logger.info(message)
-
-    def warning(self, message: str):
-        self.__logger.warning(message)
-
-    def debug(self, message: str):
-        self.__logger.debug(message)
