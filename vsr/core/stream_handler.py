@@ -25,7 +25,7 @@ class StreamHandler:
 
         self.requested_shutdown = False
 
-        self.__logger = Logger.from_context(f"relay_logger.stream_handler_{self.__thread.native_id}")
+        self.__logger = Logger(logger_name=f"relay_logger.stream_handler_{self.__thread.native_id}")
 
     def process(self):
         self.__logger.info("init")
