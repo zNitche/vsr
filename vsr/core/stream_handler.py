@@ -3,7 +3,7 @@ import threading
 import selectors
 import time
 from vsr.modules.camera import Camera
-from vsr.logger import Logger
+from vsr.logging import Logger
 
 
 class StreamHandler:

@@ -3,7 +3,7 @@ import selectors
 import threading
 from vsr.modules.camera import Camera
 from vsr.core.stream_handler import StreamHandler
-from vsr.logger import Logger
+from vsr.logging import Logger
 
 
 class Relay:
