@@ -28,7 +28,15 @@ class Relay:
         self.__camera_threads: list[threading.Thread] = []
 
         self.__logger = Logger(logger_name="relay_logger")
+
+        self.__init_loggers()
+
+    def __init_loggers(self):
         self.__logger.init()
+
+        # sub loggers
+        stream_handler_logger = Logger(logger_name=f"stream_handler_logger")
+        stream_handler_logger.init()
 
     def __setup_socket(self):
         self.__socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
